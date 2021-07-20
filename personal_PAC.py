@@ -38,10 +38,11 @@ pac = PAC()
 # print(x_train.shape, x_test.shape)
 pac.fit(x_train, y_train)
 
-# y_pred = pac.predict(x_test)
-# score = accuracy_score(y_test, y_pred)
-# print(f'Accuracy: {round(score*100, 2)}')
-#
-#
-# con_mat = confusion_matrix(y_test,y_pred, labels=['FAKE','REAL'])
-# print(con_mat)
+y_pred = pac.predict(x_test)
+# print(y_pred)
+score = accuracy_score(y_test, y_pred)
+print(f'Accuracy: {round(score*100, 2)}')
+
+
+con_mat = confusion_matrix(y_test,y_pred, labels=['FAKE','REAL'])
+print(con_mat)

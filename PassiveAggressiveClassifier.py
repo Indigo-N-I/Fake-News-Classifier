@@ -22,16 +22,44 @@ class PAC():
         self.max_loss = cap_loss
 
     def fit(self, x_train, y_train):
+        # get classes
+        # this part will need adjusting if there are more than two classes
+        y_train = np.array(y_train)
+        self.classes = {}
+        classes = set(y_train)
+        assert len(classes) == 2, "more than two classes"
+        val = 1
+        for c in classes:
+            self.classes[c] = val
+            val *= -1
+        self.class_rev = dict([reversed(i) for i in self.classes.items()])
+
         #initialize weights to 0
         self.weights = np.zeros((x_train.shape[1], 1))
 
         for index, data_point in enumerate(x_train):
             data_norm = normalize(data_point)
-            print(data_norm.T.shape, self.weights.shape)
-            print(data_norm * self.weights)
-            predict = np.cross(data_norm.T, self.weights)
-            y = y_train[index]
-            if not y * predict[0] >= 1:
-                loss = max(0, 1-y*predict[0])
+
+            predict = np.sum(data_norm * self.weights)
+
+            y = self.classes[y_train[index]]
+
+
+            if not y * int(predict) >= 1:
+                loss = max(0, 1-y*predict)
                 loss = min(self.max_loss, loss)
-                self.weights = self.weights + y * loss * data_norm
+                self.weights = self.weights + y * loss * data_norm.T
+
+    def predict(self, x_test):
+        predictions = []
+        for data_point in x_test:
+            data_norm = normalize(data_point)
+
+            predictions.append(np.sum(data_norm* self.weights))
+
+        predictions = [x if x != 0 else 1 for x in predictions]
+        predictions = np.array(predictions)
+        predictions /= np.abs(predictions)
+
+
+        return [self.class_rev[int(pred)] for pred in predictions]
